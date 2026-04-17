@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Atua Ops">
+<meta name="theme-color" content="#0B1628">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<title>Atua Ops</title>
+<link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:      #0B1628;
+  --navy-mid:  #122040;
+  --navy-lt:   #1a2e57;
+  --navy-surf: #0f1d38;
+  --gold:      #C9A84C;
+  --gold-lt:   #E8C97A;
+  --gold-dk:   #8a6d2e;
+  --gold-glow: rgba(201,168,76,0.10);
+  --white:     #F5F2EC;
+  --wd:        rgba(245,242,236,0.58);
+  --wf:        rgba(245,242,236,0.07);
+  --wg:        rgba(245,242,236,0.03);
+  --green:     #2ECC71;
+  --amber:     #E8A020;
+  --red:       #C8102E;
+  --blue:      #3AB8E8;
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+
+body{
+  background:var(--navy);
+  color:var(--white);
+  font-family:'Jost',sans-serif;
+  font-weight:300;
+  display:flex;
+  flex-direction:column;
+}
+
+/* grain */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:0.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── TOP BAR ── */
+.topbar{
+  height:56px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;
+  background:rgba(11,22,40,0.95);
+  border-bottom:1px solid rgba(201,168,76,0.12);
+  backdrop-filter:blur(20px);
+  position:relative;z-index:100;
+}
+
+.tb-logo{
+  display:flex;align-items:center;gap:10px;
+}
+.tb-mark{width:26px;height:26px;}
+.tb-name{
+  font-family:'Syncopate',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:.2em;color:var(--white);
+}
+.tb-name span{color:var(--gold);}
+
+.tb-right{
+  display:flex;align-items:center;gap:16px;
+}
+.tb-date{
+  font-size:10px;font-weight:300;letter-spacing:.15em;color:var(--wd);
+}
+.tb-add{
+  font-family:'Syncopate',sans-serif;font-size:8px;font-weight:700;
+  letter-spacing:.25em;text-transform:uppercase;
+  background:var(--gold);color:var(--navy);border:none;
+  padding:8px 16px;cursor:pointer;transition:background .2s;
+}
+.tb-add:hover{background:var(--gold-lt);}
+
+/* ── LAYOUT ── */
+.app{
+  display:flex;flex:1;overflow:hidden;
+}
+
+/* ── SIDEBAR ── */
+.sidebar{
+  width:320px;flex-shrink:0;
+  background:var(--navy-surf);
+  border-right:1px solid var(--wf);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+
+.sb-head{
+  padding:20px 20px 12px;
+  border-bottom:1px solid var(--wf);
+  flex-shrink:0;
+}
+.sb-label{
+  font-family:'Syncopate',sans-serif;font-size:8px;font-weight:700;
+  letter-spacing:.45em;text-transform:uppercase;color:var(--gold);
+  margin-bottom:12px;display:flex;align-items:center;gap:8px;
+}
+.sb-label::before{content:'';width:16px;height:1px;background:var(--gold);}
+
+.sb-stats{display:flex;gap:2px;}
+.sb-stat{
+  flex:1;background:var(--wg);border:1px solid var(--wf);
+  padding:10px;text-align:center;
+}
+.ss-n{
+  font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;
+  color:var(--gold);line-height:1;
+}
+.ss-l{font-size:9px;font-weight:300;letter-spacing:.15em;color:var(--wd);margin-top:2px;}
+
+.sb-list{
+  flex:1;overflow-y:auto;padding:12px;
+  display:flex;flex-direction:column;gap:2px;
+}
+.sb-list::-webkit-scrollbar{width:3px;}
+.sb-list::-webkit-scrollbar-thumb{background:var(--wf);}
+
+.proj-card{
+  padding:16px;background:var(--wg);border:1px solid var(--wf);
+  cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
+}
+.proj-card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:transparent;transition:background .2s;
+}
+.proj-card:hover{background:rgba(201,168,76,0.04);border-color:rgba(201,168,76,0.15);}
+.proj-card:hover::before{background:var(--gold-dk);}
+.proj-card.active{background:rgba(201,168,76,0.06);border-color:rgba(201,168,76,0.2);}
+.proj-card.active::before{background:var(--gold);}
+
+.pc-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;}
+.pc-name{
+  font-family:'Syncopate',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.15em;text-transform:uppercase;
+  color:var(--white);line-height:1.3;flex:1;margin-right:8px;
+}
+.pc-status{
+  font-size:8px;font-weight:400;letter-spacing:.15em;text-transform:uppercase;
+  padding:3px 8px;border:1px solid;white-space:nowrap;
+}
+.s-active{color:var(--green);border-color:rgba(46,204,113,0.3);background:rgba(46,204,113,0.06);}
+.s-building{color:var(--amber);border-color:rgba(232,160,32,0.3);background:rgba(232,160,32,0.06);}
+.s-planning{color:var(--blue);border-color:rgba(58,184,232,0.3);background:rgba(58,184,232,0.06);}
+.s-paused{color:var(--wd);border-color:var(--wf);background:var(--wg);}
+
+.pc-client{font-size:11px;font-weight:300;color:var(--wd);margin-bottom:8px;}
+
+.pc-progress{height:2px;background:var(--wf);margin-bottom:8px;}
+.pc-bar{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-lt));transition:width .4s ease;}
+
+.pc-meta{display:flex;justify-content:space-between;}
+.pc-tasks{font-size:10px;font-weight:300;color:var(--wd);}
+.pc-pct{font-size:10px;font-weight:400;color:var(--gold);}
+
+/* ── MAIN PANEL ── */
+.main{
+  flex:1;overflow-y:auto;
+  background:var(--navy);
+}
+.main::-webkit-scrollbar{width:4px;}
+.main::-webkit-scrollbar-thumb{background:var(--wf);}
+
+/* Empty state */
+.empty-state{
+  height:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:40px;text-align:center;
+}
+.es-icon{font-size:48px;margin-bottom:20px;opacity:.3;}
+.es-title{
+  font-family:'Syncopate',sans-serif;font-size:12px;font-weight:700;
+  letter-spacing:.3em;text-transform:uppercase;color:var(--wd);
+  margin-bottom:8px;
+}
+.es-body{font-size:13px;font-weight:300;color:var(--wd);opacity:.5;line-height:1.7;}
+
+/* Project detail */
+.proj-detail{padding:32px;max-width:900px;}
+
+.pd-header{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  margin-bottom:32px;padding-bottom:24px;
+  border-bottom:1px solid var(--wf);
+}
+
+.pd-left{}
+.pd-eyebrow{
+  font-size:9px;font-weight:400;letter-spacing:.45em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:8px;
+  display:flex;align-items:center;gap:8px;
+}
+.pd-eyebrow::before{content:'';width:16px;height:1px;background:var(--gold);}
+
+.pd-name{
+  font-family:'Syncopate',sans-serif;
+  font-size:clamp(16px,2.5vw,28px);font-weight:700;
+  letter-spacing:.1em;color:var(--white);line-height:1.1;margin-bottom:6px;
+}
+.pd-client{
+  font-family:'Cormorant Garamond',serif;
+  font-size:16px;font-weight:300;font-style:italic;
+  color:var(--gold-lt);
+}
+
+.pd-actions{display:flex;gap:8px;flex-shrink:0;margin-left:20px;}
+.pd-btn{
+  font-family:'Syncopate',sans-serif;font-size:7px;font-weight:700;
+  letter-spacing:.25em;text-transform:uppercase;
+  padding:9px 16px;border:1px solid var(--wf);
+  background:transparent;color:var(--wd);cursor:pointer;
+  transition:all .2s;
+}
+.pd-btn:hover{border-color:rgba(201,168,76,.3);color:var(--gold);}
+.pd-btn.danger:hover{border-color:rgba(200,16,46,.4);color:var(--red);}
+
+/* Grid of info cards */
+.pd-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:24px;
+}
+@media(max-width:600px){.pd-grid{grid-template-columns:1fr;}}
+
+.info-card{
+  background:var(--navy-surf);border:1px solid var(--wf);padding:20px 24px;
+}
+.ic-label{
+  font-size:9px;font-weight:400;letter-spacing:.35em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:8px;
+}
+.ic-value{font-size:14px;font-weight:300;color:var(--white);line-height:1.5;}
+.ic-value.big{
+  font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--gold);
+}
+
+/* Progress bar large */
+.pd-progress-wrap{
+  background:var(--navy-surf);border:1px solid var(--wf);
+  padding:20px 24px;margin-bottom:24px;
+}
+.pp-top{display:flex;justify-content:space-between;margin-bottom:12px;}
+.pp-label{font-size:9px;font-weight:400;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);}
+.pp-pct{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;color:var(--gold);}
+.pp-bar{height:4px;background:var(--wf);}
+.pp-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-lt));transition:width .6s ease;}
+
+/* Updates / direction */
+.pd-section{margin-bottom:24px;}
+.pds-head{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:12px;
+}
+.pds-title{
+  font-family:'Syncopate',sans-serif;font-size:9px;font-weight:700;
+  letter-spacing:.35em;text-transform:uppercase;color:var(--white);
+  display:flex;align-items:center;gap:8px;
+}
+.pds-title::before{content:'';width:14px;height:1px;background:var(--gold);}
+.pds-add{
+  font-size:9px;font-weight:400;letter-spacing:.2em;color:var(--gold);
+  background:none;border:1px solid rgba(201,168,76,.2);padding:5px 10px;
+  cursor:pointer;transition:all .2s;
+}
+.pds-add:hover{background:var(--gold-glow);}
+
+.update-list{display:flex;flex-direction:column;gap:2px;}
+.update-item{
+  background:var(--navy-surf);border:1px solid var(--wf);
+  padding:14px 18px;
+  display:flex;gap:14px;align-items:flex-start;
+  transition:border-color .2s;
+}
+.update-item:hover{border-color:rgba(201,168,76,.12);}
+.ui-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--gold);flex-shrink:0;margin-top:5px;
+}
+.ui-dot.note{background:var(--blue);}
+.ui-dot.warning{background:var(--amber);}
+.ui-text{font-size:13px;font-weight:300;color:var(--white);line-height:1.6;flex:1;}
+.ui-date{font-size:10px;font-weight:300;color:var(--wd);margin-top:3px;letter-spacing:.05em;}
+.ui-del{
+  background:none;border:none;color:var(--wd);cursor:pointer;
+  font-size:14px;opacity:0;transition:opacity .2s;padding:0 4px;
+}
+.update-item:hover .ui-del{opacity:1;}
+.ui-del:hover{color:var(--red);}
+
+/* Tasks */
+.task-list{display:flex;flex-direction:column;gap:2px;}
+.task-item{
+  background:var(--navy-surf);border:1px solid var(--wf);
+  padding:12px 16px;
+  display:flex;gap:12px;align-items:center;
+  transition:border-color .2s, opacity .2s;
+  cursor:pointer;
+}
+.task-item:hover{border-color:rgba(201,168,76,.12);}
+.task-item.done{opacity:.45;}
+.task-item.done .ti-text{text-decoration:line-through;color:var(--wd);}
+
+.ti-check{
+  width:18px;height:18px;border:1px solid rgba(201,168,76,.3);
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.task-item.done .ti-check{background:var(--gold);border-color:var(--gold);}
+.ti-check-icon{font-size:10px;color:var(--navy);display:none;}
+.task-item.done .ti-check-icon{display:block;}
+
+.ti-text{font-size:13px;font-weight:300;color:var(--white);flex:1;line-height:1.4;}
+.ti-priority{
+  font-size:8px;font-weight:400;letter-spacing:.15em;text-transform:uppercase;
+  padding:3px 8px;border:1px solid;
+}
+.p-high{color:var(--red);border-color:rgba(200,16,46,.3);}
+.p-mid{color:var(--amber);border-color:rgba(232,160,32,.3);}
+.p-low{color:var(--wd);border-color:var(--wf);}
+.ti-del{
+  background:none;border:none;color:var(--wd);cursor:pointer;
+  font-size:13px;opacity:0;transition:opacity .2s;
+}
+.task-item:hover .ti-del{opacity:1;}
+.ti-del:hover{color:var(--red);}
+
+/* ── MODALS ── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:200;
+  background:rgba(11,22,40,0.85);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex;}
+
+.modal{
+  background:var(--navy-mid);border:1px solid rgba(201,168,76,.2);
+  width:100%;max-width:520px;
+  position:relative;
+  animation:modalIn .25s ease both;
+}
+@keyframes modalIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+.modal-head{
+  padding:20px 24px;border-bottom:1px solid var(--wf);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.modal-title{
+  font-family:'Syncopate',sans-serif;font-size:10px;font-weight:700;
+  letter-spacing:.25em;text-transform:uppercase;color:var(--white);
+}
+.modal-close{
+  background:none;border:none;color:var(--wd);font-size:18px;
+  cursor:pointer;transition:color .2s;
+}
+.modal-close:hover{color:var(--white);}
+
+.modal-body{padding:24px;}
+
+.mfield{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+.mfield label{
+  font-size:9px;font-weight:400;letter-spacing:.35em;text-transform:uppercase;color:var(--wd);
+}
+.mfield input,.mfield select,.mfield textarea{
+  background:var(--navy);border:1px solid var(--wf);
+  color:var(--white);font-family:'Jost',sans-serif;font-size:13px;font-weight:300;
+  padding:10px 14px;outline:none;transition:border-color .2s;
+  -webkit-appearance:none;
+}
+.mfield input:focus,.mfield select:focus,.mfield textarea:focus{border-color:rgba(201,168,76,.35);}
+.mfield textarea{resize:vertical;min-height:80px;line-height:1.6;}
+.mfield select option{background:var(--navy-mid);}
+
+.mrow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+.modal-foot{
+  padding:16px 24px;border-top:1px solid var(--wf);
+  display:flex;justify-content:flex-end;gap:8px;
+}
+.m-cancel{
+  font-family:'Syncopate',sans-serif;font-size:8px;font-weight:400;
+  letter-spacing:.2em;background:none;border:1px solid var(--wf);
+  color:var(--wd);padding:10px 20px;cursor:pointer;transition:all .2s;
+}
+.m-cancel:hover{border-color:rgba(245,242,236,.2);color:var(--white);}
+.m-save{
+  font-family:'Syncopate',sans-serif;font-size:8px;font-weight:700;
+  letter-spacing:.2em;background:var(--gold);border:none;
+  color:var(--navy);padding:10px 20px;cursor:pointer;transition:background .2s;
+}
+.m-save:hover{background:var(--gold-lt);}
+
+/* ── MOBILE / PWA ── */
+@media(max-width:700px){
+  .app{ flex-direction:column; }
+  .sidebar{ width:100%; height:auto; max-height:42vh; border-right:none; border-bottom:1px solid var(--wf); }
+  .sb-list{ padding:8px; }
+  .main{ flex:1; overflow-y:auto; }
+  .proj-detail{ padding:16px; }
+  .pd-header{ flex-direction:column; gap:16px; }
+  .pd-actions{ margin-left:0; flex-wrap:wrap; }
+  .pd-grid{ grid-template-columns:1fr 1fr; }
+  .topbar{ padding:0 16px; }
+  .tb-name{ font-size:9px; }
+  .tb-date{ display:none; }
+  .proj-card{ padding:14px 12px; min-height:72px; }
+  .task-item{ padding:14px 12px; min-height:48px; }
+  .tb-add{ padding:8px 14px; }
+  .modal{ max-width:100%; margin:0; border-left:none; border-right:none; }
+  .modal-overlay{ align-items:flex-end; padding:0; }
+  .topbar{ padding-top:env(safe-area-inset-top); height:calc(56px + env(safe-area-inset-top)); }
+  body{ padding-bottom:env(safe-area-inset-bottom); }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="tb-logo">
+    <svg class="tb-mark" viewBox="0 0 36 36" fill="none">
+      <circle cx="18" cy="18" r="16.5" stroke="#C9A84C" stroke-width=".75" stroke-dasharray="4 3"/>
+      <path d="M18 5C18 5 28 9 30 18C32 27 25 32 18 31C11 30 6 25 7 18C8 11 15 12 18 14C21 16 23 20 21 23C19 26 17 25 18 23" stroke="#C9A84C" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <circle cx="18" cy="18" r="2.5" fill="#C9A84C"/>
+    </svg>
+    <div class="tb-name">ATUA <span>·</span> OPS</div>
+  </div>
+  <div class="tb-right">
+    <div class="tb-date" id="tb-date"></div>
+    <button class="tb-add" onclick="openNewProject()">+ New Project</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-head">
+      <div class="sb-label">Projects</div>
+      <div class="sb-stats">
+        <div class="sb-stat">
+          <div class="ss-n" id="stat-total">0</div>
+          <div class="ss-l">Total</div>
+        </div>
+        <div class="sb-stat">
+          <div class="ss-n" id="stat-active">0</div>
+          <div class="ss-l">Active</div>
+        </div>
+        <div class="sb-stat">
+          <div class="ss-n" id="stat-done">0</div>
+          <div class="ss-l">Done</div>
+        </div>
+      </div>
+    </div>
+    <div class="sb-list" id="sb-list">
+      <!-- populated by JS -->
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main" id="main">
+    <div class="empty-state" id="empty-state">
+      <div class="es-icon">◈</div>
+      <div class="es-title">No project selected</div>
+      <div class="es-body">Select a project from the left<br>or create a new one to get started.</div>
+    </div>
+    <div class="proj-detail" id="proj-detail" style="display:none;"></div>
+  </div>
+
+</div>
+
+<!-- NEW PROJECT MODAL -->
+<div class="modal-overlay" id="modal-new">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">New Project</div>
+      <button class="modal-close" onclick="closeModal('modal-new')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="mfield">
+        <label>Project Name</label>
+        <input type="text" id="np-name" placeholder="e.g. Tamatea RSC Website">
+      </div>
+      <div class="mfield">
+        <label>Client / Organisation</label>
+        <input type="text" id="np-client" placeholder="e.g. Tamatea Rugby & Sports Club">
+      </div>
+      <div class="mrow">
+        <div class="mfield">
+          <label>Status</label>
+          <select id="np-status">
+            <option value="planning">Planning</option>
+            <option value="building">Building</option>
+            <option value="active">Active</option>
+            <option value="paused">Paused</option>
+          </select>
+        </div>
+        <div class="mfield">
+          <label>Tier</label>
+          <select id="np-tier">
+            <option value="Tier 1 — Presence">Tier 1 — Presence</option>
+            <option value="Tier 2 — Engine">Tier 2 — Engine</option>
+            <option value="Tier 3 — Collective">Tier 3 — Collective</option>
+            <option value="Internal">Internal</option>
+          </select>
+        </div>
+      </div>
+      <div class="mrow">
+        <div class="mfield">
+          <label>Value ($)</label>
+          <input type="text" id="np-value" placeholder="e.g. 1500">
+        </div>
+        <div class="mfield">
+          <label>Target Date</label>
+          <input type="date" id="np-date">
+        </div>
+      </div>
+      <div class="mfield">
+        <label>Direction / Goal</label>
+        <textarea id="np-direction" placeholder="What is this project trying to achieve?"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="m-cancel" onclick="closeModal('modal-new')">Cancel</button>
+      <button class="m-save" onclick="saveNewProject()">Create Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD UPDATE MODAL -->
+<div class="modal-overlay" id="modal-update">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Add Update</div>
+      <button class="modal-close" onclick="closeModal('modal-update')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="mfield">
+        <label>Update</label>
+        <textarea id="upd-text" placeholder="What happened, what changed, what was decided..."></textarea>
+      </div>
+      <div class="mfield">
+        <label>Type</label>
+        <select id="upd-type">
+          <option value="update">Progress Update</option>
+          <option value="note">Note</option>
+          <option value="warning">Blocker / Issue</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="m-cancel" onclick="closeModal('modal-update')">Cancel</button>
+      <button class="m-save" onclick="saveUpdate()">Add Update</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TASK MODAL -->
+<div class="modal-overlay" id="modal-task">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Add Task</div>
+      <button class="modal-close" onclick="closeModal('modal-task')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="mfield">
+        <label>Task</label>
+        <input type="text" id="task-text" placeholder="e.g. Connect n8n webhook to registration form">
+      </div>
+      <div class="mfield">
+        <label>Priority</label>
+        <select id="task-priority">
+          <option value="high">High</option>
+          <option value="mid">Medium</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="m-cancel" onclick="closeModal('modal-task')">Cancel</button>
+      <button class="m-save" onclick="saveTask()">Add Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT PROJECT MODAL -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Edit Project</div>
+      <button class="modal-close" onclick="closeModal('modal-edit')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="mfield">
+        <label>Project Name</label>
+        <input type="text" id="ep-name">
+      </div>
+      <div class="mfield">
+        <label>Client / Organisation</label>
+        <input type="text" id="ep-client">
+      </div>
+      <div class="mrow">
+        <div class="mfield">
+          <label>Status</label>
+          <select id="ep-status">
+            <option value="planning">Planning</option>
+            <option value="building">Building</option>
+            <option value="active">Active</option>
+            <option value="paused">Paused</option>
+          </select>
+        </div>
+        <div class="mfield">
+          <label>Tier</label>
+          <select id="ep-tier">
+            <option value="Tier 1 — Presence">Tier 1 — Presence</option>
+            <option value="Tier 2 — Engine">Tier 2 — Engine</option>
+            <option value="Tier 3 — Collective">Tier 3 — Collective</option>
+            <option value="Internal">Internal</option>
+          </select>
+        </div>
+      </div>
+      <div class="mrow">
+        <div class="mfield">
+          <label>Value ($)</label>
+          <input type="text" id="ep-value">
+        </div>
+        <div class="mfield">
+          <label>Target Date</label>
+          <input type="date" id="ep-date">
+        </div>
+      </div>
+      <div class="mfield">
+        <label>Direction / Goal</label>
+        <textarea id="ep-direction"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="m-cancel" onclick="closeModal('modal-edit')">Cancel</button>
+      <button class="m-save" onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let projects = [];
+let activeId = null;
+
+const STORAGE_KEY = 'atua_projects_v1';
+
+// ── SERVICE WORKER ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+
+// ── PERSISTENCE ──
+async function loadProjects() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) projects = JSON.parse(saved);
+  } catch {
+    projects = [];
+  }
+  // Seed default projects if empty
+  if (projects.length === 0) {
+    projects = [
+      {
+        id: uid(), name: 'Atua Intelligence Website', client: 'Internal — Atua Intelligence',
+        status: 'building', tier: 'Internal', value: '', date: '',
+        direction: 'Build the premium agency website to position Atua Intelligence in the Hawke\'s Bay market. Goal: get discovery calls booked and demonstrate proof of work.',
+        updates: [
+          { id: uid(), text: 'Full website built — hero, manifesto, pillars, services, work, tiers, testimonials, live AI demo agent.', type: 'update', date: today() },
+          { id: uid(), text: 'Next: deploy to Vercel via GitHub. Add real API key behind serverless function.', type: 'note', date: today() }
+        ],
+        tasks: [
+          { id: uid(), text: 'Push to GitHub repo', done: false, priority: 'high' },
+          { id: uid(), text: 'Deploy to Vercel — get live URL', done: false, priority: 'high' },
+          { id: uid(), text: 'Secure API key via Vercel serverless function', done: false, priority: 'high' },
+          { id: uid(), text: 'Add real contact form / Calendly link', done: false, priority: 'mid' },
+          { id: uid(), text: 'Replace placeholder case studies with real ones', done: false, priority: 'mid' },
+        ]
+      },
+      {
+        id: uid(), name: 'Tamatea RSC Platform', client: 'Tamatea Rugby & Sports Club',
+        status: 'building', tier: 'Tier 2 — Engine', value: '1500', date: '',
+        direction: 'Replace Facebook as the club\'s communication hub. Automate 122+ seasonal registration invoices. AI agent handles parent enquiries 24/7 across all 5 codes.',
+        updates: [
+          { id: uid(), text: 'Full website prototype built — all 5 codes, registration form, AI chat agent, news ticker.', type: 'update', date: today() },
+          { id: uid(), text: 'Need to connect n8n webhook so form actually sends invoices.', type: 'warning', date: today() }
+        ],
+        tasks: [
+          { id: uid(), text: 'Show aunty the prototype — get feedback', done: false, priority: 'high' },
+          { id: uid(), text: 'Set up Airtable — registrations schema', done: false, priority: 'high' },
+          { id: uid(), text: 'Build n8n Workflow 1 — form capture → Airtable', done: false, priority: 'high' },
+          { id: uid(), text: 'Build n8n Workflow 2 — auto invoice email', done: false, priority: 'high' },
+          { id: uid(), text: 'Test end-to-end — submit form → receive invoice', done: false, priority: 'mid' },
+          { id: uid(), text: 'Deploy to Vercel — get live URL for club', done: false, priority: 'mid' },
+          { id: uid(), text: 'Train committee on Airtable dashboard', done: false, priority: 'low' },
+        ]
+      },
+      {
+        id: uid(), name: 'Events & Hire Booking System', client: 'TBC — Hawke\'s Bay Hire Co.',
+        status: 'planning', tier: 'Tier 2 — Engine', value: '2500', date: '',
+        direction: 'Build availability-aware hire catalogue with automated booking, deposit invoicing via Stripe, owner approval flow, and full pre/post event automation sequence.',
+        updates: [
+          { id: uid(), text: 'Full system architecture planned — 8 n8n workflows, Airtable schema, Stripe integration, availability locking logic.', type: 'update', date: today() },
+        ],
+        tasks: [
+          { id: uid(), text: 'Confirm client — have the conversation', done: false, priority: 'high' },
+          { id: uid(), text: 'Build Airtable schema — inventory, bookings, availability locks', done: false, priority: 'high' },
+          { id: uid(), text: 'Build frontend — date picker + live availability filter', done: false, priority: 'high' },
+          { id: uid(), text: 'Build n8n Workflow 1 — enquiry capture + pending lock', done: false, priority: 'high' },
+          { id: uid(), text: 'Build n8n Workflow 2 & 3 — owner approve/decline', done: false, priority: 'high' },
+          { id: uid(), text: 'Stripe integration — deposit invoice generation', done: false, priority: 'mid' },
+          { id: uid(), text: 'Build n8n Workflow 4 — payment confirmed → calendar', done: false, priority: 'mid' },
+          { id: uid(), text: 'Build n8n Workflow 5 — pending expiry (scheduled)', done: false, priority: 'mid' },
+          { id: uid(), text: 'Build n8n Workflows 7 & 8 — reminders + post-event', done: false, priority: 'low' },
+          { id: uid(), text: 'End-to-end test full booking flow', done: false, priority: 'mid' },
+        ]
+      },
+      {
+        id: uid(), name: 'HB Business Rant Quiz', client: 'Atua Intelligence — Lead Gen',
+        status: 'planning', tier: 'Internal', value: '', date: '',
+        direction: 'Build a Tally.so quiz — "Kōrero Mai" — capturing real business pain points from Hawke\'s Bay. Distribute via family network and sports clubs. Target 20 responses in first 2 weeks.',
+        updates: [],
+        tasks: [
+          { id: uid(), text: 'Build Tally.so form — 4 page quiz', done: false, priority: 'high' },
+          { id: uid(), text: 'Write copy — "Kōrero Mai" framing', done: false, priority: 'high' },
+          { id: uid(), text: 'Share with aunty + family to distribute', done: false, priority: 'high' },
+          { id: uid(), text: 'Post to Hawke\'s Bay Facebook groups', done: false, priority: 'mid' },
+          { id: uid(), text: 'Set up n8n to capture responses + notify you', done: false, priority: 'mid' },
+          { id: uid(), text: 'Personal follow-up to every respondent within 24hrs', done: false, priority: 'high' },
+        ]
+      }
+    ];
+    await persist();
+  }
+  render();
+}
+
+async function persist() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+  } catch(e) {
+    console.warn('Storage error:', e);
+  }
+}
+
+// ── HELPERS ──
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function today() {
+  return new Date().toLocaleDateString('en-NZ', { day:'numeric', month:'short', year:'numeric' });
+}
+
+function getProgress(p) {
+  if (!p.tasks || p.tasks.length === 0) return 0;
+  return Math.round((p.tasks.filter(t => t.done).length / p.tasks.length) * 100);
+}
+
+function statusLabel(s) {
+  const map = { active:'Active', building:'Building', planning:'Planning', paused:'Paused' };
+  return map[s] || s;
+}
+function statusClass(s) {
+  const map = { active:'s-active', building:'s-building', planning:'s-planning', paused:'s-paused' };
+  return map[s] || 's-paused';
+}
+
+// ── RENDER SIDEBAR ──
+function render() {
+  // stats
+  document.getElementById('stat-total').textContent = projects.length;
+  document.getElementById('stat-active').textContent = projects.filter(p => p.status === 'active' || p.status === 'building').length;
+  document.getElementById('stat-done').textContent = projects.filter(p => getProgress(p) === 100).length;
+
+  // date
+  document.getElementById('tb-date').textContent = new Date().toLocaleDateString('en-NZ', { weekday:'short', day:'numeric', month:'long' });
+
+  // list
+  const list = document.getElementById('sb-list');
+  list.innerHTML = '';
+  projects.forEach(p => {
+    const pct = getProgress(p);
+    const done = p.tasks ? p.tasks.filter(t=>t.done).length : 0;
+    const total = p.tasks ? p.tasks.length : 0;
+    const el = document.createElement('div');
+    el.className = 'proj-card' + (p.id === activeId ? ' active' : '');
+    el.onclick = () => selectProject(p.id);
+    el.innerHTML = `
+      <div class="pc-top">
+        <div class="pc-name">${p.name}</div>
+        <div class="pc-status ${statusClass(p.status)}">${statusLabel(p.status)}</div>
+      </div>
+      <div class="pc-client">${p.client}</div>
+      <div class="pc-progress"><div class="pc-bar" style="width:${pct}%"></div></div>
+      <div class="pc-meta">
+        <div class="pc-tasks">${done}/${total} tasks</div>
+        <div class="pc-pct">${pct}%</div>
+      </div>
+    `;
+    list.appendChild(el);
+  });
+
+  // detail
+  if (activeId) {
+    const p = projects.find(x => x.id === activeId);
+    if (p) renderDetail(p);
+  }
+}
+
+// ── RENDER DETAIL ──
+function renderDetail(p) {
+  document.getElementById('empty-state').style.display = 'none';
+  const det = document.getElementById('proj-detail');
+  det.style.display = 'block';
+
+  const pct = getProgress(p);
+
+  const updatesHTML = (p.updates || []).length === 0
+    ? `<div style="font-size:13px;color:var(--wd);opacity:.5;padding:16px 0;">No updates yet.</div>`
+    : (p.updates || []).slice().reverse().map(u => `
+      <div class="update-item">
+        <div class="ui-dot ${u.type === 'note' ? 'note' : u.type === 'warning' ? 'warning' : ''}"></div>
+        <div style="flex:1">
+          <div class="ui-text">${u.text}</div>
+          <div class="ui-date">${u.date}</div>
+        </div>
+        <button class="ui-del" onclick="deleteUpdate('${p.id}','${u.id}')">✕</button>
+      </div>
+    `).join('');
+
+  const tasksHTML = (p.tasks || []).length === 0
+    ? `<div style="font-size:13px;color:var(--wd);opacity:.5;padding:16px 0;">No tasks yet.</div>`
+    : (p.tasks || []).map(t => `
+      <div class="task-item ${t.done ? 'done' : ''}" onclick="toggleTask('${p.id}','${t.id}')">
+        <div class="ti-check"><span class="ti-check-icon">✓</span></div>
+        <div class="ti-text">${t.text}</div>
+        <div class="ti-priority p-${t.priority}">${t.priority}</div>
+        <button class="ti-del" onclick="event.stopPropagation();deleteTask('${p.id}','${t.id}')">✕</button>
+      </div>
+    `).join('');
+
+  const valueDisplay = p.value ? `$${parseInt(p.value).toLocaleString()}` : '—';
+  const dateDisplay = p.date ? new Date(p.date).toLocaleDateString('en-NZ', {day:'numeric',month:'long',year:'numeric'}) : '—';
+
+  det.innerHTML = `
+    <div class="pd-header">
+      <div class="pd-left">
+        <div class="pd-eyebrow">${p.tier}</div>
+        <div class="pd-name">${p.name}</div>
+        <div class="pd-client">${p.client}</div>
+      </div>
+      <div class="pd-actions">
+        <button class="pd-btn" onclick="openEdit('${p.id}')">Edit</button>
+        <button class="pd-btn danger" onclick="deleteProject('${p.id}')">Delete</button>
+      </div>
+    </div>
+
+    <div class="pd-grid">
+      <div class="info-card">
+        <div class="ic-label">Status</div>
+        <div class="ic-value"><span class="pc-status ${statusClass(p.status)}" style="font-size:11px;">${statusLabel(p.status)}</span></div>
+      </div>
+      <div class="info-card">
+        <div class="ic-label">Project Value</div>
+        <div class="ic-value big">${valueDisplay}</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-label">Target Date</div>
+        <div class="ic-value">${dateDisplay}</div>
+      </div>
+      <div class="info-card">
+        <div class="ic-label">Tasks Remaining</div>
+        <div class="ic-value big">${(p.tasks||[]).filter(t=>!t.done).length}</div>
+      </div>
+    </div>
+
+    <div class="pd-progress-wrap">
+      <div class="pp-top">
+        <div class="pp-label">Overall Progress</div>
+        <div class="pp-pct">${pct}%</div>
+      </div>
+      <div class="pp-bar"><div class="pp-fill" style="width:${pct}%"></div></div>
+    </div>
+
+    ${p.direction ? `
+    <div class="pd-section">
+      <div class="pds-head"><div class="pds-title">Direction & Goal</div></div>
+      <div style="background:var(--navy-surf);border:1px solid var(--wf);padding:20px 24px;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;font-style:italic;color:var(--wd);line-height:1.75;">${p.direction}</div>
+      </div>
+    </div>` : ''}
+
+    <div class="pd-section">
+      <div class="pds-head">
+        <div class="pds-title">Updates</div>
+        <button class="pds-add" onclick="openAddUpdate('${p.id}')">+ Add Update</button>
+      </div>
+      <div class="update-list">${updatesHTML}</div>
+    </div>
+
+    <div class="pd-section">
+      <div class="pds-head">
+        <div class="pds-title">To-Do List</div>
+        <button class="pds-add" onclick="openAddTask('${p.id}')">+ Add Task</button>
+      </div>
+      <div class="task-list">${tasksHTML}</div>
+    </div>
+  `;
+}
+
+// ── SELECT ──
+function selectProject(id) {
+  activeId = id;
+  render();
+  document.getElementById('main').scrollTop = 0;
+}
+
+// ── NEW PROJECT ──
+function openNewProject() {
+  document.getElementById('np-name').value = '';
+  document.getElementById('np-client').value = '';
+  document.getElementById('np-status').value = 'planning';
+  document.getElementById('np-tier').value = 'Tier 1 — Presence';
+  document.getElementById('np-value').value = '';
+  document.getElementById('np-date').value = '';
+  document.getElementById('np-direction').value = '';
+  openModal('modal-new');
+}
+
+async function saveNewProject() {
+  const name = document.getElementById('np-name').value.trim();
+  if (!name) { alert('Project name is required.'); return; }
+  const p = {
+    id: uid(),
+    name,
+    client: document.getElementById('np-client').value.trim(),
+    status: document.getElementById('np-status').value,
+    tier: document.getElementById('np-tier').value,
+    value: document.getElementById('np-value').value.trim(),
+    date: document.getElementById('np-date').value,
+    direction: document.getElementById('np-direction').value.trim(),
+    updates: [],
+    tasks: []
+  };
+  projects.push(p);
+  await persist();
+  activeId = p.id;
+  closeModal('modal-new');
+  render();
+}
+
+// ── EDIT ──
+function openEdit(id) {
+  const p = projects.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('ep-name').value = p.name;
+  document.getElementById('ep-client').value = p.client;
+  document.getElementById('ep-status').value = p.status;
+  document.getElementById('ep-tier').value = p.tier;
+  document.getElementById('ep-value').value = p.value;
+  document.getElementById('ep-date').value = p.date;
+  document.getElementById('ep-direction').value = p.direction;
+  document.getElementById('modal-edit').dataset.id = id;
+  openModal('modal-edit');
+}
+
+async function saveEdit() {
+  const id = document.getElementById('modal-edit').dataset.id;
+  const p = projects.find(x => x.id === id);
+  if (!p) return;
+  p.name = document.getElementById('ep-name').value.trim();
+  p.client = document.getElementById('ep-client').value.trim();
+  p.status = document.getElementById('ep-status').value;
+  p.tier = document.getElementById('ep-tier').value;
+  p.value = document.getElementById('ep-value').value.trim();
+  p.date = document.getElementById('ep-date').value;
+  p.direction = document.getElementById('ep-direction').value.trim();
+  await persist();
+  closeModal('modal-edit');
+  render();
+}
+
+// ── DELETE PROJECT ──
+async function deleteProject(id) {
+  if (!confirm('Delete this project? This cannot be undone.')) return;
+  projects = projects.filter(p => p.id !== id);
+  if (activeId === id) {
+    activeId = projects.length > 0 ? projects[0].id : null;
+  }
+  await persist();
+  render();
+  if (!activeId) {
+    document.getElementById('empty-state').style.display = 'flex';
+    document.getElementById('proj-detail').style.display = 'none';
+  }
+}
+
+// ── UPDATES ──
+let _updateTarget = null;
+function openAddUpdate(id) {
+  _updateTarget = id;
+  document.getElementById('upd-text').value = '';
+  document.getElementById('upd-type').value = 'update';
+  openModal('modal-update');
+}
+async function saveUpdate() {
+  const text = document.getElementById('upd-text').value.trim();
+  if (!text) return;
+  const p = projects.find(x => x.id === _updateTarget);
+  if (!p) return;
+  if (!p.updates) p.updates = [];
+  p.updates.push({ id: uid(), text, type: document.getElementById('upd-type').value, date: today() });
+  await persist();
+  closeModal('modal-update');
+  render();
+}
+async function deleteUpdate(projId, updId) {
+  const p = projects.find(x => x.id === projId);
+  if (!p) return;
+  p.updates = p.updates.filter(u => u.id !== updId);
+  await persist();
+  render();
+}
+
+// ── TASKS ──
+let _taskTarget = null;
+function openAddTask(id) {
+  _taskTarget = id;
+  document.getElementById('task-text').value = '';
+  document.getElementById('task-priority').value = 'mid';
+  openModal('modal-task');
+}
+async function saveTask() {
+  const text = document.getElementById('task-text').value.trim();
+  if (!text) return;
+  const p = projects.find(x => x.id === _taskTarget);
+  if (!p) return;
+  if (!p.tasks) p.tasks = [];
+  p.tasks.push({ id: uid(), text, done: false, priority: document.getElementById('task-priority').value });
+  await persist();
+  closeModal('modal-task');
+  render();
+}
+async function toggleTask(projId, taskId) {
+  const p = projects.find(x => x.id === projId);
+  if (!p) return;
+  const t = p.tasks.find(t => t.id === taskId);
+  if (t) t.done = !t.done;
+  await persist();
+  render();
+}
+async function deleteTask(projId, taskId) {
+  const p = projects.find(x => x.id === projId);
+  if (!p) return;
+  p.tasks = p.tasks.filter(t => t.id !== taskId);
+  await persist();
+  render();
+}
+
+// ── MODAL HELPERS ──
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// enter key in modals
+document.getElementById('np-name').addEventListener('keydown', e => { if(e.key==='Enter') saveNewProject(); });
+document.getElementById('task-text').addEventListener('keydown', e => { if(e.key==='Enter') saveTask(); });
+
+// ── INIT ──
+loadProjects().then(() => {
+  if (projects.length > 0 && !activeId) {
+    activeId = projects[0].id;
+    render();
+  }
+});
+</script>
+</body>
+</html>
